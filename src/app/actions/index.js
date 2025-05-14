@@ -5,8 +5,15 @@ export async function doSocialLogin(formData) {
     await signIn(action,{redirectTo: '/home'});
 }
 export async function doLogout() {
-    await signOut({redirect: "/"})
+    try {
+        await signOut({ redirect: false });
+        return { success: true };
+    } catch (error) {
+        console.error("Logout error:", error);
+        return { success: false, error: error.message };
+    }
 }
+
 export async function doCredentialLogin(formData) {
     try {
         const response = await signIn("credentials",{

@@ -1,6 +1,7 @@
 'use client';
 import SocialMediaAuth from "./SocialMedia";
 import { doCredentialLogin } from "@/app/actions";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 export default function SignInForm () {
@@ -23,6 +24,7 @@ export default function SignInForm () {
     return (
         <>
             <div>{error}</div>
+            <h1>User Sign In</h1>
             <form onSubmit={HandleSignInForm}>
                 <label>Username</label>
                 <input type="text" name="username" id="username" placeholder="username" />
@@ -33,6 +35,7 @@ export default function SignInForm () {
                 <input type="submit" value="user signin" />
             </form>
             <SocialMediaAuth />
+            <Link href={'/signup'}>Don't You Have An Account</Link>
         </>
     );
 }

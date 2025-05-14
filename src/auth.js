@@ -3,7 +3,8 @@ import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import CredentialProvider from "next-auth/providers/credentials";
 
-import { getUserByEmail } from "./data/users";
+import User from "./model/user-model";
+import bcrypt from 'bcrypt';
 
 export const {
     handlers: {GET, POST},
@@ -20,21 +21,25 @@ export const {
                 console.log('credentials: ',credentials);
                 if(credentials === null) return null;
                 try {
-                    const user = getUserByEmail(credentials?.email);
-                    if(user) {
-                        const isMatch = user.password === credentials?.password
-                        if(isMatch) {
+                    const user = await User.findOne({ email: credentials.email }).select('+password');
+                    console.log(user);
+
+                    if (user) {
+                        const isMatch = await bcrypt.compare(credentials.password, user.password);
+                        console.log('Password match:', isMatch);
+
+                        if (isMatch) {
                             return {
-                                id: user.email,
+                                id: user._id.toString(),
                                 name: user.username,
                                 email: user.email,
                                 username: user.username,
-                            }
+                            };
                         } else {
-                            throw new Error("Check Your Password!");
+                            throw new Error("Incorrect password");
                         }
                     } else {
-                        throw new Error("User Not Found!");
+                        throw new Error("User not found");
                     }
                 } catch (error) {
                     throw new Error("Internal Server Error");
@@ -70,13 +75,15 @@ export const {
                 // Add user data to the token
                 token.name = user.name;
                 token.email = user.email;
-                token.username = user.username; 
+                token.username = user.username;
+                token.id = user.id; 
             }
             return token;
         },
         async session({ session, token }) {
             // Add token data to the session
             if (token) {
+                session.user.id = token.id;
                 session.user.name = token.name;
                 session.user.email = token.email;
                 session.user.username = token.username;
@@ -84,5 +91,6 @@ export const {
             return session;
         },
     },
+
 })
 // http://localhost:3000/api/auth/callback/google
