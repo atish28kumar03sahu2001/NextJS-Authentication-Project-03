@@ -64,8 +64,4 @@ export const config = {
         ...restrictedWhenAuthenticated,
     ],
 };
-<<<<<<< HEAD
 */
-=======
-*/
->>>>>>> ce5a89d01067cbfd939f703ee60a75bf2fe4f5d9
